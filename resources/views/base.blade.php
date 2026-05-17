@@ -4,73 +4,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
-    </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-    <title>@yield('title')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
+    <title>@yield('title', 'Mon Blog')</title>
 </head>
 
-<body>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary container">
-        <div class="container-fluid bg-primary navbar" data-bs-theme="dark">
-            <a class="navbar-brand" href="{{ route('blog.index') }}">Blog</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
-                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNavDropdown">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a @class([
-                            'nav-link',
-                            'active' => request()->route()->getName() == 'blog.index',
-                        ]) aria-current="page" href="{{ route('blog.index') }}">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a @class([
-                            'nav-link',
-                            'active' => request()->route()->getName() == 'blog.create',
-                        ]) href="{{ route('blog.create') }}">Creer un blog</a>
-                    </li>
+<body class="bg-slate-50 min-h-screen text-gray-900 antialiased">
 
-                </ul>
-                <div class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    @auth
-                        {{ Auth::user()->name }}
-                        <form class="nav-item" action="{{ route('logout') }}" method="post">
-                            @method('delete')
-                            @csrf
-                            <button class="nav-link">Se deconnecter</button>
-                        </form>
-                    @endauth
+    <header class="bg-slate-900 sticky top-0 z-50 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+
+                <a href="{{ route('blog.index') }}"
+                    class="flex items-center gap-3 group">
+                    <span class="flex items-center justify-center bg-white rounded-xl p-1 shadow-lg ring-1 ring-white/20 group-hover:ring-indigo-400 transition-all duration-200">
+                        <img src="{{ asset('images/logo.avif') }}" alt="Mon Blog"
+                            class="h-9 w-9 object-cover rounded-lg">
+                    </span>
+                    <span class="text-white font-bold text-base tracking-tight hidden sm:block">
+                        Mon<span class="text-indigo-400">Blog</span>
+                    </span>
+                </a>
+
+                <nav class="hidden md:flex items-center gap-1">
+                    <a href="{{ route('blog.index') }}"
+                        class="px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                               {{ request()->routeIs('blog.index') ? 'bg-slate-700 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-800' }}">
+                        Accueil
+                    </a>
+                </nav>
+
+                <div class="hidden md:flex items-center gap-3">
+                    @can('admin')
+                        <a href="{{ route('admin.dashboard') }}"
+                            class="flex items-center gap-1.5 text-sm px-4 py-1.5 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors">
+                            <i class="fa-solid fa-gauge text-xs"></i> Backoffice
+                        </a>
+                    @endcan
                     @guest
-                        <div class="nav-item">
-                            <a class="nav-link" href="{{ route('login') }}">Se connecter</a>
-                        </div>
+                        <a href="{{ route('login') }}"
+                            class="text-sm px-5 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors">
+                            Se connecter
+                        </a>
                     @endguest
                 </div>
 
+                <button class="md:hidden text-slate-400 hover:text-white p-2 rounded-lg transition-colors"
+                        onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
             </div>
         </div>
-    </nav>
 
-    <div class="container">
+        <div id="mobile-menu" class="hidden md:hidden border-t border-slate-700/50">
+            <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1">
+                <a href="{{ route('blog.index') }}" class="px-3 py-2 text-slate-300 hover:text-white hover:bg-slate-800 rounded-lg text-sm transition-colors">Accueil</a>
+                @can('admin')
+                    <a href="{{ route('admin.dashboard') }}" class="px-3 py-2 text-indigo-400 hover:text-indigo-300 rounded-lg text-sm transition-colors">
+                        <i class="fa-solid fa-gauge mr-1"></i> Backoffice
+                    </a>
+                @endcan
+                @guest
+                    <a href="{{ route('login') }}" class="px-3 py-2 text-indigo-400 hover:text-indigo-300 text-sm">Se connecter</a>
+                @endguest
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
         @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
+            <div class="flex items-center gap-3 bg-emerald-50 border-l-4 border-emerald-500 rounded-lg px-4 py-3 mb-4">
+                <i class="fa-solid fa-circle-check text-emerald-500 text-lg shrink-0"></i>
+                <span class="text-sm font-medium text-emerald-800">{{ session('success') }}</span>
             </div>
         @endif
-        @yield('content')
-
+        @if (session('error'))
+            <div class="flex items-center gap-3 bg-red-50 border-l-4 border-red-500 rounded-lg px-4 py-3 mb-4">
+                <i class="fa-solid fa-circle-xmark text-red-500 text-lg shrink-0"></i>
+                <span class="text-sm font-medium text-red-800">{{ session('error') }}</span>
+            </div>
+        @endif
+        @if (session('warning'))
+            <div class="flex items-center gap-3 bg-amber-50 border-l-4 border-amber-500 rounded-lg px-4 py-3 mb-4">
+                <i class="fa-solid fa-triangle-exclamation text-amber-500 text-lg shrink-0"></i>
+                <span class="text-sm font-medium text-amber-800">{{ session('warning') }}</span>
+            </div>
+        @endif
+        @if (session('info'))
+            <div class="flex items-center gap-3 bg-blue-50 border-l-4 border-blue-500 rounded-lg px-4 py-3 mb-4">
+                <i class="fa-solid fa-circle-info text-blue-500 text-lg shrink-0"></i>
+                <span class="text-sm font-medium text-blue-800">{{ session('info') }}</span>
+            </div>
+        @endif
     </div>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        @yield('content')
+    </main>
+
+    @stack('scripts')
 </body>
 
 </html>

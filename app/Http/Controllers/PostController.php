@@ -8,7 +8,6 @@ use App\Models\Post;
 use App\Models\Tag;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Storage;
-use Request;
 
 class PostController extends Controller
 {
@@ -44,13 +43,29 @@ class PostController extends Controller
         //     ['name' => 'Tag 3']
         // ]);
 
-        $posts = Post::with('tags', 'category')->paginate(10);
-        return view('blog.index', compact('posts'));
+        $categoryId = request()->integer('category');
+
+        $posts = Post::with('tags', 'category')
+            ->when($categoryId, fn ($q) => $q->where('category_id', $categoryId))
+            ->latest()
+            ->paginate(9)
+            ->withQueryString();
+
+        $categories = Category::withCount('posts')->get();
+        $tags = Tag::withCount('posts')->get();
+
+        $stats = [
+            'posts' => Post::count(),
+            'categories' => $categories->count(),
+            'tags' => $tags->count(),
+        ];
+
+        return view('blog.index', compact('posts', 'categories', 'tags', 'stats'));
     }
 
     public function create()
     {
-        $post = new Post();
+        $post = new Post;
         $categories = Category::select('id', 'name')->get();
         $tags = Tag::select('id', 'name')->get();
 
@@ -59,7 +74,7 @@ class PostController extends Controller
 
     public function store(FormPostRequest $request)
     {
-        $post = new Post();
+        $post = new Post;
         // LA FONCTION extracteData() EST JUSTE DANS LA METHODE PRIVATE JUSTE EN BAS
         $post = Post::create($this->extracteData($post, $request));
         $post->tags()->sync($request->validated('tags'));
@@ -71,12 +86,12 @@ class PostController extends Controller
     {
         $categories = Category::select('id', 'name')->get();
         $tags = Tag::select('id', 'name')->get();
+
         return view('blog.edit', ['post' => $post, 'categories' => $categories, 'tags' => $tags]);
     }
 
     public function update(Post $post, FormPostRequest $request)
     {
-
 
         // CETTE METHODE A POUR AVANTAGE D'ÊTRE UTILSER DANS STORE & UPADTE
         $post->update($this->extracteData($post, $request));
@@ -112,13 +127,12 @@ class PostController extends Controller
         return $data;
     }
 
-    public function show(Request $request, string $slug)
+    public function show(string $slug)
     {
+        $post = Post::with('category', 'tags')->where('slug', $slug)->firstOrFail();
+        $remainingpost = Post::with('category')->where('id', '!=', $post->id)->latest()->take(3)->get();
 
-        $post = Post::where("slug", $slug)->first();
-        $remainingpost = Post::all()->except($post->id);
         return view('blog.show', compact('post', 'remainingpost'));
-
 
         // $post = Post::findOrFail($id);
 
@@ -130,7 +144,6 @@ class PostController extends Controller
     }
 
     public function destroy(Post $post)
-
     {
 
         $post->delete();
