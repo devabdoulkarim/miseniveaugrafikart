@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\SocialAuthController;
 use Illuminate\Support\Facades\Route;
 
 // ── Frontend public ──────────────────────────────────────────────────────────
@@ -18,6 +19,9 @@ Route::get('/{slug}/show', [PostController::class, 'show'])
 Route::get('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/login', [AuthController::class, 'dologin']);
 Route::delete('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
 // ── Backoffice (admins uniquement) ───────────────────────────────────────────
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'can:admin'])->group(function () {

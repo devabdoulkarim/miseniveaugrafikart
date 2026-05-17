@@ -18,20 +18,20 @@
 
 @section('content')
 
-    {{-- Stats --}}
+    {{-- Stats cards --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
         @php
             $cards = [
-                ['label' => 'Articles',    'value' => $stats['posts'],      'icon' => 'fa-newspaper',    'color' => 'indigo'],
-                ['label' => 'Catégories',  'value' => $stats['categories'], 'icon' => 'fa-folder-open',  'color' => 'amber'],
-                ['label' => 'Tags',        'value' => $stats['tags'],       'icon' => 'fa-tags',         'color' => 'violet'],
-                ['label' => 'Utilisateurs','value' => $stats['users'],      'icon' => 'fa-users',        'color' => 'emerald'],
+                ['label' => 'Articles',     'value' => $stats['posts'],      'icon' => 'fa-newspaper',   'color' => 'indigo'],
+                ['label' => 'Catégories',   'value' => $stats['categories'], 'icon' => 'fa-folder-open', 'color' => 'amber'],
+                ['label' => 'Tags',         'value' => $stats['tags'],       'icon' => 'fa-tags',        'color' => 'violet'],
+                ['label' => 'Utilisateurs', 'value' => $stats['users'],      'icon' => 'fa-users',       'color' => 'emerald'],
             ];
             $colors = [
-                'indigo'  => ['bg' => 'bg-indigo-50',  'icon' => 'text-indigo-600',  'badge' => 'bg-indigo-600'],
-                'amber'   => ['bg' => 'bg-amber-50',   'icon' => 'text-amber-600',   'badge' => 'bg-amber-500'],
-                'violet'  => ['bg' => 'bg-violet-50',  'icon' => 'text-violet-600',  'badge' => 'bg-violet-600'],
-                'emerald' => ['bg' => 'bg-emerald-50', 'icon' => 'text-emerald-600', 'badge' => 'bg-emerald-600'],
+                'indigo'  => ['bg' => 'bg-indigo-50',  'icon' => 'text-indigo-600'],
+                'amber'   => ['bg' => 'bg-amber-50',   'icon' => 'text-amber-600'],
+                'violet'  => ['bg' => 'bg-violet-50',  'icon' => 'text-violet-600'],
+                'emerald' => ['bg' => 'bg-emerald-50', 'icon' => 'text-emerald-600'],
             ];
         @endphp
 
@@ -49,6 +49,49 @@
         @endforeach
     </div>
 
+    {{-- Graphiques --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+
+        {{-- Publications par mois --}}
+        <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="font-semibold text-gray-900">Publications par mois</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">6 derniers mois</p>
+                </div>
+                <span class="p-2 bg-indigo-50 rounded-xl">
+                    <i class="fa-solid fa-chart-column text-indigo-500"></i>
+                </span>
+            </div>
+            <div class="h-56">
+                <canvas id="chartPostsByMonth"
+                    data-labels="{{ json_encode($chartPostsByMonth->pluck('month')) }}"
+                    data-values="{{ json_encode($chartPostsByMonth->pluck('total')) }}">
+                </canvas>
+            </div>
+        </div>
+
+        {{-- Articles par catégorie --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="font-semibold text-gray-900">Par catégorie</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Répartition des articles</p>
+                </div>
+                <span class="p-2 bg-amber-50 rounded-xl">
+                    <i class="fa-solid fa-chart-pie text-amber-500"></i>
+                </span>
+            </div>
+            <div class="h-56">
+                <canvas id="chartPostsByCategory"
+                    data-labels="{{ json_encode($chartPostsByCategory->pluck('name')) }}"
+                    data-values="{{ json_encode($chartPostsByCategory->pluck('posts_count')) }}">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tags + Articles récents --}}
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
         {{-- Articles récents --}}
@@ -90,38 +133,28 @@
             </div>
         </div>
 
-        {{-- Répartition par catégorie --}}
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-100">
-                <h2 class="font-semibold text-gray-900">Par catégorie</h2>
-            </div>
-            <div class="p-6 flex flex-col gap-4">
-                @forelse ($categories as $cat)
-                    @php
-                        $percent = $stats['posts'] > 0 ? round(($cat->posts_count / $stats['posts']) * 100) : 0;
-                    @endphp
-                    <div>
-                        <div class="flex items-center justify-between mb-1.5">
-                            <span class="text-sm font-medium text-gray-700">{{ $cat->name }}</span>
-                            <span class="text-xs text-gray-500">{{ $cat->posts_count }} articles</span>
-                        </div>
-                        <div class="h-2 bg-gray-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-indigo-500 rounded-full transition-all duration-500"
-                                style="width: {{ $percent }}%"></div>
-                        </div>
-                    </div>
-                @empty
-                    <p class="text-sm text-gray-400">Aucune catégorie.</p>
-                @endforelse
-
-                <div class="mt-4 pt-4 border-t border-gray-100">
-                    <a href="{{ route('admin.posts.create') }}"
-                        class="flex items-center justify-center gap-2 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-medium transition-colors">
-                        <i class="fa-solid fa-plus text-xs"></i> Nouvel article
-                    </a>
+        {{-- Tags les plus utilisés --}}
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h2 class="font-semibold text-gray-900">Tags populaires</h2>
+                    <p class="text-xs text-gray-400 mt-0.5">Utilisation par article</p>
                 </div>
+                <span class="p-2 bg-violet-50 rounded-xl">
+                    <i class="fa-solid fa-tags text-violet-500"></i>
+                </span>
+            </div>
+            <div class="h-56">
+                <canvas id="chartTags"
+                    data-labels="{{ json_encode($chartTags->pluck('name')) }}"
+                    data-values="{{ json_encode($chartTags->pluck('posts_count')) }}">
+                </canvas>
             </div>
         </div>
     </div>
 
 @endsection
+
+@push('scripts')
+    @vite('resources/js/dashboard.js')
+@endpush

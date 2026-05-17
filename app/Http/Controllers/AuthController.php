@@ -20,11 +20,12 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+
             return redirect()->intended(route('blog.index'));
         }
 
-        return to_route('auth.login')->withErrors([
-            'email' => "Email ou Mot de passe Ivalide"
+        return to_route('login')->withErrors([
+            'email' => 'Email ou mot de passe invalide.',
         ])->onlyInput('email');
     }
 
@@ -32,6 +33,7 @@ class AuthController extends Controller
     {
 
         Auth::logout();
+
         return to_route('login');
     }
 }
