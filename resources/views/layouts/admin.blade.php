@@ -44,6 +44,24 @@
                 Articles
             </a>
 
+            @can('manage-categories')
+                <a href="{{ route('admin.categories.index') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
+                           {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <i class="fa-solid fa-folder-open w-4 text-center"></i>
+                    Catégories
+                </a>
+            @endcan
+
+            @can('manage-tags')
+                <a href="{{ route('admin.tags.index') }}"
+                    class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors
+                           {{ request()->routeIs('admin.tags.*') ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:bg-slate-800 hover:text-white' }}">
+                    <i class="fa-solid fa-tags w-4 text-center"></i>
+                    Tags
+                </a>
+            @endcan
+
             @can('manage-users')
                 <div class="my-3 border-t border-slate-700/50"></div>
                 <p class="text-slate-500 text-xs font-semibold uppercase tracking-widest px-3 mb-2">Administration</p>
