@@ -34,6 +34,6 @@ class SocialAuthController extends Controller
 
         Auth::login($user, remember: true);
 
-        return redirect()->intended(route('blog.index'));
+        return redirect()->route('blog.index');
     }
 }

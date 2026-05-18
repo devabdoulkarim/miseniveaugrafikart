@@ -41,6 +41,21 @@
                             <i class="fa-solid fa-gauge text-xs"></i> Backoffice
                         </a>
                     @endcan
+                    @auth
+                        @cannot('access-admin')
+                            <div class="flex items-center gap-2">
+                                <span class="text-slate-300 text-sm max-w-28 truncate">{{ Auth::user()->name }}</span>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" title="Se déconnecter"
+                                        class="flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full border border-slate-600 text-slate-400 hover:text-white hover:border-slate-400 transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-right-from-bracket text-xs"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        @endcannot
+                    @endauth
                     @guest
                         <a href="{{ route('login') }}"
                             class="text-sm px-5 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors">
@@ -64,6 +79,18 @@
                         <i class="fa-solid fa-gauge mr-1"></i> Backoffice
                     </a>
                 @endcan
+                @auth
+                    @cannot('access-admin')
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit"
+                                class="w-full text-left px-3 py-2 text-red-400 hover:text-red-300 rounded-lg text-sm transition-colors cursor-pointer">
+                                <i class="fa-solid fa-right-from-bracket mr-1"></i> Se déconnecter
+                            </button>
+                        </form>
+                    @endcannot
+                @endauth
                 @guest
                     <a href="{{ route('login') }}" class="px-3 py-2 text-indigo-400 hover:text-indigo-300 text-sm">Se connecter</a>
                 @endguest

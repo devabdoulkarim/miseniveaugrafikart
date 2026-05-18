@@ -60,7 +60,7 @@
             </div>
 
             {{-- Actions admin --}}
-            @auth
+            @can('manage-posts')
                 <div class="mt-10 pt-6 border-t border-gray-100 flex gap-3">
                     <a href="{{ route('admin.posts.edit', $post->id) }}"
                         class="inline-flex items-center gap-2 px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-medium transition-colors">
@@ -76,7 +76,7 @@
                         </button>
                     </form>
                 </div>
-            @endauth
+            @endcan
         </article>
 
         {{-- Sidebar --}}

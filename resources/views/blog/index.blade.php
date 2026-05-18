@@ -94,12 +94,12 @@
             </a>
         @endforeach
 
-        @auth
+        @can('manage-posts')
             <a href="{{ route('admin.posts.create') }}"
                 class="ml-auto flex items-center gap-2 px-4 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full text-sm font-medium transition-colors shadow-sm">
                 <i class="fa-solid fa-plus text-xs"></i> Nouvel article
             </a>
-        @endauth
+        @endcan
     </div>
 
     {{-- Grille d'articles --}}
